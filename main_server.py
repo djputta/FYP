@@ -1,5 +1,4 @@
 from PerudoServer import PerudoServer
-from time import sleep
 import argparse
 
 
@@ -14,20 +13,18 @@ def main(players, num_games=10):
         while True:
             if sum([x.out for x in p.player_list.values()]) == len(p.player_list) - 1:
                 p.send_game_over()
-                sleep(.05)
+
                 p.send_out()
-                sleep(.05)
+
                 break
             else:
-                sleep(.05)
+
                 p.send_game_over()
-                sleep(.05)
+
                 p.send_out()
-                sleep(.05)
+
                 call, player = p.play_round()
                 winner[player][0 if call else 1] += 1
-                # sleep(.15)
-        sleep(.1)
 
         p.broadcast_win()
         for i, player in enumerate(list(p.player_list.keys())):

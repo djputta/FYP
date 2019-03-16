@@ -68,14 +68,11 @@ class PerudoServer(Perudo):
 
         for player in list(self.player_list.keys()):
             if not self.player_list[player].out:
-                player[0].sendall(pickle.dumps("Ready"))
-                sleep(.05)
                 player[0].sendall(pickle.dumps(self.total_dice))
-                sleep(.05)
+                player[0].recv(131072)
                 dice_list = self.player_list[player].dice_list
                 player[0].sendall(pickle.dumps(dice_list))
-                sleep(.05)
-            # sleep(.01)
+                player[0].recv(131072)
 
     def play_round(self):
         self.total_dice = sum([player.num_dice for player in self.player_list.values()])
@@ -91,6 +88,7 @@ class PerudoServer(Perudo):
                 for i, player in enumerate(self.player_list.keys()):
                     if i != self.turn and not self.player_list[player].out:
                         player[0].sendall(pickle.dumps(str(bet)))
+                        player[0].recv(131072)
 
                 if isinstance(bet, str):
                     return (self.turn, self.check_call(self.all_bets[-1], self.turn))
@@ -100,8 +98,8 @@ class PerudoServer(Perudo):
 
     def get_bet(self, turn):
         player = list(self.player_list.keys())[self.turn][0]
-        sleep(.05)
         player.sendall(pickle.dumps("S"))
+        player.recv(131072)
         bet = pickle.loads(player.recv(131072))
         if bet == 'call':
             return 'call'
@@ -113,9 +111,10 @@ class PerudoServer(Perudo):
         for player in list(self.player_list.keys()):
             if self.player_list[player].out:
                 player[0].sendall(pickle.dumps(True))
+                player[0].recv(131072)
             else:
                 player[0].sendall(pickle.dumps(False))
-        sleep(.01)
+                player[0].recv(131072)
 
     def send_game_over(self):
         for player in list(self.player_list.keys()):
@@ -123,15 +122,19 @@ class PerudoServer(Perudo):
                 self.game_over = True
                 print("Game Over")
                 player[0].sendall(pickle.dumps(True))
+                player[0].recv(131072)
             else:
                 player[0].sendall(pickle.dumps(False))
+                player[0].recv(131072)
 
     def broadcast_win(self):
         for player in list(self.player_list.keys()):
             if self.player_list[player].out:
                 player[0].sendall(pickle.dumps(False))
+                player[0].recv(131072)
             else:
                 player[0].sendall(pickle.dumps(True))
+                player[0].recv(131072)
 
     def reset(self):
         for player in list(self.player_list.keys()):
@@ -144,3 +147,4 @@ class PerudoServer(Perudo):
     def send_num_games(self):
         for player in list(self.player_list.keys()):
             player[0].sendall(pickle.dumps(self.num_games))
+            player[0].recv(131072)

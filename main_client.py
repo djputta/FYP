@@ -1,5 +1,4 @@
 from PlayerClient import PlayerClient
-from time import sleep
 import argparse
 
 
@@ -13,14 +12,11 @@ def main(type):
                 break
             else:
                 p.check_game_over()
-                sleep(.01)
                 p.check_out()
-                sleep(.01)
                 if p.out:
                     print("You are out")
                 elif not p.game_over:
                     p.play_round()
-                    # sleep(.1)
 
         if p.check_won():
             print("You have won")

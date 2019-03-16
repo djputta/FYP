@@ -2,7 +2,6 @@ from Player import Player, HumanPlayer, DumbAIPlayer, SLDumbAIPlayer, LDumbAIPla
 import socket
 import pickle
 from Bet import Bet
-from time import sleep
 
 
 class PlayerClient(Player):
@@ -23,27 +22,24 @@ class PlayerClient(Player):
         self.num_dice = 0
 
     def receive_info(self):
-        x = pickle.loads(self.sock.recv(131072))
-        sleep(.01)
-        # print(x)
         old_dice = self.num_dice
         self.num_dice = pickle.loads(self.sock.recv(131072))
+        self.sock.sendall(pickle.dumps("OK"))
         if old_dice != self.num_dice and old_dice != 0:
             # print("You have lost a dice")
             pass
-        sleep(.01)
         # print("There are " + str(self.num_dice) + " dice left in the game.")
         self.dice_list = pickle.loads(self.sock.recv(131072))
+        self.sock.sendall(pickle.dumps("OK"))
         # print("Dice is:", self.dice_list)
         self.bot.dice_list = self.dice_list
-        sleep(.01)
 
     def place_bet(self):
         last_bet = None if len(self.all_bets) == 0 else self.all_bets[-1]
         # print(last_bet)
         bet = self.bot.place_bet(self.num_dice, self.bet_history, last_bet=last_bet)
         print(bet)
-        if bet == 'call':
+        if isinstance(bet, str):
             self.sock.sendall(pickle.dumps(str(bet)))
             # print("You have called")
             return True
@@ -59,6 +55,7 @@ class PlayerClient(Player):
             # print("OK")
             while True:
                 response = pickle.loads(self.sock.recv(24))
+                self.sock.sendall(pickle.dumps("OK"))
                 # print(response)
                 if response == 'S':
                     # print("Place a bet:")
@@ -85,15 +82,19 @@ class PlayerClient(Player):
 
     def check_out(self):
         check = pickle.loads(self.sock.recv(16384))
+        self.sock.sendall(pickle.dumps("OK"))
         # print("Check is:")
         # print(check)
         self.out = check
 
     def check_game_over(self):
         self.game_over = pickle.loads(self.sock.recv(16384))
+        self.sock.sendall(pickle.dumps("OK"))
 
     def check_won(self):
-        return pickle.loads(self.sock.recv(16384))
+        won = pickle.loads(self.sock.recv(16384))
+        self.sock.sendall(pickle.dumps("OK"))
+        return won
 
     def reset(self):
         self.all_bets = []
@@ -102,4 +103,6 @@ class PlayerClient(Player):
         self.game_over = False
 
     def num_games(self):
-        return pickle.loads(self.sock.recv(1024))
+        _num_games = pickle.loads(self.sock.recv(1024))
+        self.sock.sendall(pickle.dumps("OK"))
+        return _num_games
