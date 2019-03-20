@@ -36,22 +36,15 @@ class PerudoServer(Perudo):
 
         if last_bet.num_of_dice > actual_amount:
             # print("Successful Call")
-            previous_player = list(self.player_list.keys())[(current_player - 1) % len(self.player_list)]
-            self.turn = (current_player - 1) % len(self.player_list)
-            if not self.player_list[previous_player].out:
-                self.player_list[previous_player].num_dice -= 1
-                if self.player_list[previous_player].num_dice == 0:
-                    self.player_list[previous_player].out = True
-                return True
-            else:
-                while True:
-                    current_player -= 1
-                    previous_player = list(self.player_list.keys())[(current_player - 1) % len(self.player_list)]
-                    if not self.player_list[previous_player].out:
-                        self.player_list[previous_player].num_dice -= 1
-                        if self.player_list[previous_player].num_dice == 0:
-                            self.player_list[previous_player].out = True
-                        return False
+            while True:
+                current_player -= 1
+                previous_player = list(self.player_list.keys())[current_player % len(self.player_list)]
+                self.turn = current_player % len(self.player_list)
+                if not self.player_list[previous_player].out:
+                    self.player_list[previous_player].num_dice -= 1
+                    if self.player_list[previous_player].num_dice == 0:
+                        self.player_list[previous_player].out = True
+                    return True
 
         else:
             # print("Unsuccessful Call")
@@ -70,8 +63,7 @@ class PerudoServer(Perudo):
             if not self.player_list[player].out:
                 player[0].sendall(pickle.dumps(self.total_dice))
                 player[0].recv(131072)
-                dice_list = self.player_list[player].dice_list
-                player[0].sendall(pickle.dumps(dice_list))
+                player[0].sendall(pickle.dumps(self.player_list[player].dice_list))
                 player[0].recv(131072)
 
     def play_round(self):
