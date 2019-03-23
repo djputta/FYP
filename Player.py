@@ -61,7 +61,7 @@ class DumbAIPlayer(Player):
         # print(repr(last_bet))
 
         i = 0
-        while len(bets) != num_bets and i < 40:
+        while len(bets) != num_bets and i < 50:
             if last_bet:
                 probs = skewnorm.pdf(range(last_bet.num_of_dice, total_dice + 1), 5, .5, 4)
                 probs = probs / sum(probs)
@@ -110,21 +110,19 @@ class SLDumbAIPlayer(DumbAIPlayer):
         end_index = total_dice - len(self.dice_list)
         our_dice = self.dice_list.count(dice_value)
         start_index = num_of_dice - our_dice
-        return sum([self.ncr(end_index, i) * 2**(end_index - i) / 3**end_index
+        return sum([self.ncr(end_index, i) * (2**(end_index - i)) / (3**end_index)
                     for i in range(start_index, end_index + 1)])
 
     def get_best(self, total_dice, prob, bluff, last_bet):
 
         if not last_bet and len(self.dice_list) == 1:
             return Bet(self.dice_list[0], 1)
-        elif len(self.dice_list) == 1:
-            return "call"
         else:
             bets = super().gen_bets(total_dice, last_bet)
             probs = [self.calc_prob(total_dice, bet.dice_value, bet.num_of_dice) for bet in bets]
+            if not probs:
+                return "call"
             index, value = max(enumerate(probs), key=op.itemgetter(1))
-            # print(bets)
-            # print(probs)
             if value <= prob:
                 return "call"
             else:
@@ -164,6 +162,8 @@ class LDumbAIPlayer(SLDumbAIPlayer):
         else:
             bets = super().gen_bets(total_dice, last_bet)
             probs = [self.calc_prob(total_dice, bet.dice_value, bet.num_of_dice, bet_history, last_bet) for bet in bets]
+            if not probs:
+                return "call"
             index, value = max(enumerate(probs), key=op.itemgetter(1))
             # print(probs)
             if value <= prob:
@@ -182,31 +182,31 @@ class LDumbAIPlayer(SLDumbAIPlayer):
 
 
 class MiniMax(SLDumbAIPlayer):
-    pruned = 0
 
-    def minimax(self, alpha, beta, total_dice, last_bet, max_turn=True, max_depth=4):
-        print(max_depth)
-        if max_depth == 0:
-            print("Finished on {}'s turn".format("Max" if max_turn else "Min"))
-            return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice) * (1 if not max_turn else -1))
+    def minimax(self, alpha, beta, total_dice, last_bet, max_turn=True, max_depth=3):
+        # print(max_depth)
 
         bets = super().gen_bets(total_dice, last_bet, 10)
-        print(bets)
+
+        if max_depth == 0 or not bets:
+            # print("Finished on {}'s turn".format("Max" if max_turn else "Min"))
+            return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice))
+
+        # print(bets)
 
         best_value = float('-inf') if max_turn else float('inf')
         bet_to_make = ""
 
         for bet in bets:
             bet_to_place, value = self.minimax(alpha, beta, total_dice, bet, not max_turn, max_depth - 1)
-            print("It is {}'s turn".format("Max" if max_turn else "Min"))
-            print("{} has probability {}".format(repr(bet_to_place), value))
+            # print("It is {}'s turn".format("Max" if max_turn else "Min"))
+            # print("{} has probability {}".format(repr(bet_to_place), value))
 
             if value > best_value and max_turn:
                 best_value = value
                 bet_to_make = bet
                 alpha = max(alpha, best_value)
                 if beta <= alpha:
-                    self.pruned += 1
                     break
 
             if value < best_value and not max_turn:
@@ -214,13 +214,32 @@ class MiniMax(SLDumbAIPlayer):
                 bet_to_make = bet
                 beta = min(beta, best_value)
                 if beta <= alpha:
-                    self.pruned += 1
                     break
 
-        print("{}: On {}'s turn the best bet was {} with a prob of {}".format(max_depth, "Max" if max_turn else "Min", repr(bet_to_make), best_value))
+        # print("{}: On {}'s turn the best bet was {} with a prob of {}".format(
+        #     max_depth, "Max" if max_turn else "Min", repr(bet_to_make), best_value))
         return (bet_to_make, best_value)
 
+    def get_best(self, total_dice, bet_history, prob, bluff, last_bet):
+        if not last_bet and len(self.dice_list) == 1:
+            return Bet(self.dice_list[0], 1)
+        elif len(self.dice_list) == 1:
+            return "call"
+        else:
+            bet, _ = self.minimax(float('-inf'), float('inf'), total_dice, last_bet)
+            bet_prob = super().calc_prob(total_dice, bet.dice_value, bet.num_of_dice)
+            print("Final bet was: {} with probability {}".format(repr(bet), bet_prob))
+            if bet_prob <= prob:
+                return 'call'
+            elif randint(0, int(1/bluff)) == 0:
+                bets = super().gen_bets(total_dice, last_bet)
+                probs = [self.calc_prob(total_dice, bet.dice_value, bet.num_of_dice) for bet in bets]
+                index, value = max(enumerate(probs), key=op.itemgetter(1))
+                return bets[index]
+
+            return bet
+
     def place_bet(self, total_number_of_dice, bet_history, prob=0.1, bluff=0.1, last_bet=None):
-        bet, value = self.minimax(float('-inf'), float('inf'), total_number_of_dice, last_bet)
-        print(self.pruned)
-        return (bet, value)
+        print("Your dice are {}:".format(self.dice_list))
+        bet = self.get_best(total_number_of_dice, bet_history, prob, bluff, last_bet)
+        return bet
