@@ -1,20 +1,20 @@
-from Perudo import Perudo
 import socket
 from collections import OrderedDict
 import pickle
 from Player import Player
 from Bet import Bet
-from time import sleep
+from random import shuffle
 
 
-class PerudoServer(Perudo):
-    def __init__(self, dice_per_player=5, num_players=1, num_games=1, port=65443):
+class PerudoServer():
+    def __init__(self, dice_per_player=5, num_players=2, num_games=1, port=65448):
         self.HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
         self.PORT = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.HOST, self.PORT))
         self.sock.listen()
         self.player_list = OrderedDict()
+        self.original_player_list = dict()
         self.num_games = num_games
         self.total_dice = dice_per_player * num_players
         self.dice_pp = dice_per_player
@@ -27,6 +27,7 @@ class PerudoServer(Perudo):
             conn, addr = self.sock.accept()
             print('Connected by', addr)
             self.player_list[(conn, addr)] = Player(self.dice_pp)
+        self.original_player_list = dict(zip(self.player_list.keys(), range(len(self.player_list))))
         print("All Players Connected")
 
     def check_call(self, last_bet, current_player):
@@ -77,13 +78,16 @@ class PerudoServer(Perudo):
                 # print("They have {} dice left in the game".format(dice))
                 bet = self.get_bet(self.turn)
 
+                print("Player {} bet: {}".format(self.turn + 1, bet))
+
                 for i, player in enumerate(self.player_list.keys()):
                     if i != self.turn and not self.player_list[player].out:
                         player[0].sendall(pickle.dumps(str(bet)))
                         player[0].recv(131072)
 
                 if isinstance(bet, str):
-                    return (self.turn, self.check_call(self.all_bets[-1], self.turn))
+                    ind = self.original_player_list[list(self.player_list.keys())[self.turn]]
+                    return (ind, self.check_call(self.all_bets[-1], self.turn))
 
                 self.all_bets.append(bet)
             self.turn = (self.turn + 1) % len(self.player_list)
@@ -100,8 +104,9 @@ class PerudoServer(Perudo):
         return Bet(int(bet[1]), int(bet[0]))
 
     def send_out(self):
-        for player in list(self.player_list.keys()):
+        for i, player in enumerate(list(self.player_list.keys())):
             if self.player_list[player].out:
+                print("Player {} is out".format(i+1))
                 player[0].sendall(pickle.dumps(True))
                 player[0].recv(131072)
             else:
@@ -135,6 +140,13 @@ class PerudoServer(Perudo):
         self.all_bets = []
         self.game_over = False
         self.total_dice = self.dice_pp * len(self.player_list)
+        self.turn = 0
+        od = list(self.player_list.items())
+        shuffle(od)
+        self.player_list = OrderedDict(od)
+        keys = list(self.player_list.keys())
+        for player in self.original_player_list:
+            print("Original Player {} is now Player {}".format(self.original_player_list[player], keys.index(player)))
 
     def send_num_games(self):
         for player in list(self.player_list.keys()):

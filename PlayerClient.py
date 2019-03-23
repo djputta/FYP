@@ -1,15 +1,14 @@
-from Player import Player, HumanPlayer, DumbAIPlayer, SLDumbAIPlayer, LDumbAIPlayer
+from Player import HumanPlayer, DumbAIPlayer, SLDumbAIPlayer, LDumbAIPlayer, MiniMax
 import socket
 import pickle
 from Bet import Bet
 
 
-class PlayerClient(Player):
+class PlayerClient():
 
-    players = {0: HumanPlayer, 1: DumbAIPlayer, 2: SLDumbAIPlayer, 3: LDumbAIPlayer}
+    players = {0: HumanPlayer, 1: DumbAIPlayer, 2: SLDumbAIPlayer, 3: LDumbAIPlayer, 4: MiniMax}
 
-    def __init__(self, type=0, port=65443):
-        self.out = False
+    def __init__(self, type=0, port=65448):
         self.HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
         self.PORT = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
