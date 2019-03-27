@@ -18,9 +18,9 @@ class Bet:
         return hash(self.num_of_dice * 10 + self.dice_value)
 
     def verify_bet(self, total_dice, previous_bet=None, verbose=True):
-        if self.dice_value not in range(1, 7):
+        if self.dice_value not in range(2, 7):
             if verbose:
-                print('dice_value should be between 1 and 6.')
+                print('dice_value should be between 2 and 6.')
             return False
         if self.num_of_dice not in range(1, total_dice + 1):
             if verbose:

@@ -6,7 +6,7 @@ def main(players, num_games=10):
     p = PerudoServer(num_players=players, num_games=num_games)
     p.add_players()
     p.send_num_games()
-    winner = {k: [0, 0, 0] for k in range(len(p.player_list))}
+    winner = {k: [0, 0, 0, 0] for k in range(len(p.player_list))}
 
     for i in range(p.num_games):
         print("Game {}".format(i))
@@ -23,22 +23,40 @@ def main(players, num_games=10):
 
                 p.send_out()
 
-                call, player = p.play_round()
+                player, call = p.play_round()
+
                 winner[player][0 if call else 1] += 1
 
         p.broadcast_win()
-        for i, player in enumerate(list(p.player_list.keys())):
+        for player in list(p.player_list.keys()):
             if not p.player_list[player].out:
-                won = i
-                print("Player {} has won.".format(won+1))
+                won = p.original_player_list[player]
+                print("Original Player {} has won.".format(won+1))
                 # print("Game Over")
-                winner[won][2] += 1
+                winner[won][2] += len(p.player_list[player].dice_list)
+                winner[won][3] += 1
                 break
 
-        p.reset()
         print("#############################################################")
 
+        if i < num_games - 1:
+            p.reset()
+
+    stats = {}
+    for i in range(len(p.player_list)):
+        if sum(winner[i][:2]) == 0:
+            if winner[i][3] == 0:
+                stats[i] = ["Never Called", 0, winner[i][3]]
+            else:
+                stats[i] = ["Never Called", winner[i][2] / winner[i][3], winner[i][3]]
+        else:
+            if winner[i][3] == 0:
+                stats[i] = [winner[i][0] / sum(winner[i][:2]), 0, winner[i][3]]
+            else:
+                stats[i] = [winner[i][0] / sum(winner[i][:2]), winner[i][2] / winner[i][3], winner[i][3]]
+
     print(winner)
+    print(stats)
 
     p.sock.close()
 
@@ -49,6 +67,6 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--number", help="Number of games to play", type=int)
     args = parser.parse_args()
     if args.number:
-        main(args.players, args.numbers)
+        main(args.players, args.number)
     else:
         main(args.players)

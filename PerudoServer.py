@@ -7,7 +7,7 @@ from random import shuffle
 
 
 class PerudoServer():
-    def __init__(self, dice_per_player=5, num_players=2, num_games=1, port=65448):
+    def __init__(self, dice_per_player=5, num_players=2, num_games=1, port=65445):
         self.HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
         self.PORT = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,7 +36,7 @@ class PerudoServer():
             actual_amount += sum([x == last_bet.dice_value or x == 1 for x in player.dice_list])
 
         if last_bet.num_of_dice > actual_amount:
-            # print("Successful Call")
+            print("Successful Call by Player {}".format(current_player + 1))
             while True:
                 current_player -= 1
                 previous_player = list(self.player_list.keys())[current_player % len(self.player_list)]
@@ -48,7 +48,7 @@ class PerudoServer():
                     return True
 
         else:
-            # print("Unsuccessful Call")
+            print("Unsuccessful Call by Player {}".format(current_player + 1))
             self.turn = current_player
             self.player_list[list(self.player_list.keys())[current_player]].num_dice -= 1
             if self.player_list[list(self.player_list.keys())[current_player]].num_dice == 0:
@@ -56,9 +56,11 @@ class PerudoServer():
             return False
 
     def send_dice(self):
-        # print("Sending info...")
-        for player in list(self.player_list.keys()):
+        print("Sending info...")
+        for i, player in enumerate(list(self.player_list.keys())):
             self.player_list[player].roll_dice()
+            print("Player {}'s dice are: {}".format(i+1, ", ".join(str(die)
+                                                                   for die in self.player_list[player].dice_list)))
 
         for player in list(self.player_list.keys()):
             if not self.player_list[player].out:
@@ -73,7 +75,7 @@ class PerudoServer():
         while True:
             # current_player = self.player_list[self.player_list.keys()[turn]]
             if not list(self.player_list.values())[self.turn].out:
-                # print("Player {}'s turn".format(self.turn + 1))
+                print("Player {}'s turn".format(self.turn + 1))
                 # dice = self.player_list[list(self.player_list.keys())[self.turn]].num_dice
                 # print("They have {} dice left in the game".format(dice))
                 bet = self.get_bet(self.turn)
@@ -106,7 +108,7 @@ class PerudoServer():
     def send_out(self):
         for i, player in enumerate(list(self.player_list.keys())):
             if self.player_list[player].out:
-                print("Player {} is out".format(i+1))
+                # print("Player {} is out".format(i+1))
                 player[0].sendall(pickle.dumps(True))
                 player[0].recv(131072)
             else:
@@ -117,7 +119,7 @@ class PerudoServer():
         for player in list(self.player_list.keys()):
             if sum([x.out for x in self.player_list.values()]) == len(self.player_list) - 1:
                 self.game_over = True
-                print("Game Over")
+                # print("Game Over")
                 player[0].sendall(pickle.dumps(True))
                 player[0].recv(131072)
             else:
@@ -147,6 +149,7 @@ class PerudoServer():
         keys = list(self.player_list.keys())
         for player in self.original_player_list:
             print("Original Player {} is now Player {}".format(self.original_player_list[player], keys.index(player)))
+            pass
 
     def send_num_games(self):
         for player in list(self.player_list.keys()):
