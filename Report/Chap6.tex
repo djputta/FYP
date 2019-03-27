@@ -1,0 +1,21 @@
+\chapter{Conclusions}
+
+\section{Project Approach}
+
+The approach for this project was to try and develop a code base that be easily built on and improved. To implement any other AI, one would have to have a class that inherits from the \texttt{Player} class and implements the \texttt{place\_bet()} method and uses the \texttt{check\_bet()} method to check if their bet is valid. After that you would have to add it to the \texttt{players} dictionary in the \texttt{PlayerClient.py} file.
+
+\section{Results Discussion}
+
+The results achieved by the algorithms developed in this project are good however due to the the way the parameters were selected it may not be as good as it could be. Playing each AI against a version of itself but with different parameters may not be a good idea as they all follow the same strategy. Maybe a better idea would be to try and play a number of games with every AI but with different parameters however this would involve playing 100 games with 27 players, which would take a long time. Also running the AI for more than 100 games each would provide more reliable results for the parameters.
+
+Another problem with my approach is that I use the values of .1, .25 and .4 for the parameters but there may be better values which are being ignored.
+
+\section{Future Work}
+
+\begin{itemize}
+    \item To further improve upon this project one could develop a web interface. This would allow for an easier experience of playing the game against the AI as one would not need to have the Python files locally. This would also help with testing the quality of each of the AI's as it would allow for more wide spread play.
+    \item The AI's seem to call unnecessarily more often when they get to a low amount of dice. With this problem addressed, I believe that the AI would perform even better.
+    \item Something else that could be done to improve the project would be to allow for a player to keep track of all the other players bets and the amount of dice they have. Currently, only the dice the player has themselves is stored however with this improvement I believe this would allow more strategies based on probability to be implemented.
+    \item Another AI could be implemented that instead of using just what \texttt{LDumbAIPlayer} used, it would also use the number of times that a bet with a certain die value has been place rather than just the largest bet on that die value.
+    \item Given more time, it would be possible to use using strategies such as Reinforcement Learning or Neural Networks to create AI that models the game in a way that is not purely probabilistic. However the problem of having the model created be able to play with any numbers players still exists.
+\end{itemize}

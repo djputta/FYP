@@ -1,0 +1,404 @@
+\documentclass[12pt, a4paper, english]{report}
+\usepackage[english]{babel}
+
+
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{upgreek}
+\usepackage{amsthm}
+\usepackage{xfrac}
+\usepackage{thmtools}
+\usepackage[binary-units=true]{siunitx}
+
+
+\usepackage[T1]{fontenc}
+\usepackage{mathspec}
+
+% undo the dumb changes made by mathspec
+\makeatletter
+\let\RequirePackage\original@RequirePackage
+\let\usepackage\RequirePackage
+\makeatother
+
+\setmonofont[
+  Contextuals={Alternate}
+]{Fira Code}
+\usepackage{newpxtext}
+\usepackage{newpxmath}
+\usepackage{epsdice}
+\usepackage{microtype}
+\usepackage[babel]{csquotes}
+\MakeOuterQuote{"}
+
+
+\usepackage{tikz}
+\usetikzlibrary{shapes}
+
+
+\usepackage[sc,bf]{titlesec}
+\newcommand{\customchapterspacing}{-1.4ex}
+
+\titleformat
+  {\chapter}
+  [display]
+  {\normalfont\huge\scshape\bfseries}
+  {\vspace{-20pt}}
+  {0pt}
+  {\Huge}
+  [\vspace{\customchapterspacing}\rule{\textwidth}{0.3pt}]
+
+  \titlespacing*
+{\chapter}
+{0pt}
+{-20pt}
+{10pt}
+
+
+\usepackage[toc,page]{appendix}
+\usepackage{abstract}
+\renewcommand{\abstractnamefont}{\normalfont\LARGE\scshape\bfseries}
+\setlength{\absleftindent}{25mm}
+\setlength{\absrightindent}{25mm}
+\renewcommand{\abstracttextfont}{\normalfont\large}
+
+
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{svg}
+\graphicspath{{resources/}}
+
+\usepackage[affil-it]{authblk}
+
+
+\usepackage[
+  backend=biber,
+  sorting=none
+]{biblatex}
+\renewcommand*{\nameyeardelim}{\addcomma\space}
+
+%% @software ~> @online
+% \DeclareBibliographyAlias{software}{online}
+
+%% decrease URL font size in bibliography
+\AtBeginBibliography{\renewcommand{\UrlFont}{\ttfamily\footnotesize}}
+
+\addbibresource{references.bib}
+
+
+
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+
+\setlength{\abovecaptionskip}{5pt plus 1pt minus 1pt}
+\setlength{\belowcaptionskip}{5pt plus 1pt minus 1pt}
+
+
+\usepackage{enumitem}
+\usepackage{pifont}
+
+\newlist{todolist}{itemize}{2}
+\setlist[todolist]{label=\( \square \)}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\done}{\rlap{\( \square \)}{\raisebox{1.5pt}{\large\hspace{1.5pt}\cmark}}\hspace{-2.5pt}}
+
+
+\usepackage[margin=20mm]{geometry}
+\linespread{1.15}
+
+
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+  colorlinks,
+  linkcolor={red!50!black},
+  citecolor={red!50!black},
+  urlcolor={blue!50!black}
+}
+
+
+\usepackage{booktabs}
+\usepackage{flafter}
+
+\renewcommand{\arraystretch}{1.2}
+
+\makeatletter
+\renewcommand{\fps@figure}{htp}
+\renewcommand{\fps@table}{htp}
+\makeatother
+
+\usepackage{keystroke}
+
+\usepackage{listings}
+\usepackage[minted, most]{tcolorbox}
+\tcbuselibrary{minted}
+\tcbuselibrary{breakable}
+\usepackage{minted}
+
+\newcommand{\customfontsize}{\fontsize{8.5}{10.2}\selectfont}
+
+\AtBeginDocument{  % need this since listings only defines its counter after \begin{document}
+\newtcblisting[auto counter, number within = chapter]{haskell}
+  { listing engine=minted
+  , listing only
+  , minted language=haskell
+  , minted options=
+      { fontsize=\customfontsize
+      , autogobble
+      , mathescape=true
+      , escapeinside=||
+      }
+  , before skip=10pt
+  , after skip=10pt
+  , breakable
+  }
+
+\newtcblisting
+  [ auto counter
+  , number within = chapter
+  , crefname={listing}{listings}
+  , Crefname={listings}{Listings}
+  , blend into=listings
+  ]{haskellfloat}[2]
+  { listing engine=minted
+  , listing only
+  , blend before title=colon
+  , minted language=haskell
+  , minted options=
+      { fontsize=\customfontsize
+      , autogobble
+      , mathescape=true
+      }
+  , before skip=10pt
+  , after skip=10pt
+  , breakable
+  , float
+  , floatplacement=htp
+  , title={#1}
+  , label={code:#2}
+  }
+
+\newtcblisting
+  [ use counter from = haskellfloat
+  , crefname={listing}{listings}
+  , Crefname={listings}{Listings}
+  , blend into=listings
+  ]{pythonfloat}[2]
+  { listing engine=minted
+  , listing only
+  , blend before title=colon
+  , minted language=python
+  , minted options=
+      { linenos
+      , breaklines=true
+      , fontsize=\customfontsize
+      , autogobble
+      , mathescape=true
+      , escapeinside=||
+      }
+  , before skip=10pt
+  , after skip=10pt
+  , breakable
+  , float
+  , floatplacement=htp
+  , title={#1}
+  , label={code:#2}
+  }
+
+\newtcblisting
+  [ use counter from = haskellfloat
+  , crefname={listing}{listings}
+  , Crefname={listings}{Listings}
+  , blend into=listings
+  ]{myminted}[2]
+  {%
+  listing engine=minted,
+  minted language=python,
+  listing only,
+  blend before title=colon,
+  breakable,
+  enhanced,
+  minted options = {
+      linenos,
+      breaklines=true,
+      breakbefore=.,
+      fontsize=\customfontsize,
+      numbersep=2mm
+      , autogobble
+      , mathescape=true
+      , escapeinside=||
+  },
+  overlay={%
+      \begin{tcbclipinterior}
+          \fill[gray!25] (frame.south west) rectangle ([xshift=4mm]frame.north west);
+      \end{tcbclipinterior}
+  }
+  , before skip=10pt
+  , after skip=10pt
+  , breakable
+  , float
+  , floatplacement=htp
+  , title={#1}
+  , label={code:#2}
+}
+
+\newtcblisting
+  [ use counter from = haskellfloat
+  , crefname={listing}{listings}
+  , Crefname={listings}{Listings}
+  , blend into=listings
+  ]{cfloat}[2]
+  { listing engine=minted
+  , listing only
+  , blend before title=colon
+  , minted language=c
+  , minted options=
+      { fontsize=\customfontsize
+      , autogobble
+      , mathescape=true
+      , escapeinside=||
+      }
+  , before skip=10pt
+  , after skip=10pt
+  , breakable
+  , float
+  , floatplacement=htp
+  , title={#1}
+  , label={code:#2}
+  }
+
+\newtcblisting{customtext}
+  { listing engine=minted
+  , listing only
+  , minted language=text
+  , minted options={fontsize=\customfontsize, autogobble}
+  , before skip=10pt
+  , after skip=10pt
+  , breakable
+  }
+} % end \AtBeginDocument
+
+\definecolor{hackage}{RGB}{75, 139, 190}
+
+\newtcbox{\hackagebox}
+  { enhanced
+  , nobeforeafter
+  , tcbox raise base
+  , boxrule=0.6pt
+  , top=0mm, bottom=0mm, right=0mm, left=4mm, arc=1pt
+  , boxsep=1.5pt
+  , before upper={\vphantom{dlg}}
+  , colframe=hackage!90!black
+  , coltext=hackage!25!black
+  , colback=hackage!10!white
+  , overlay={
+      \begin{tcbclipinterior}
+        \fill[hackage] (frame.south west)
+        rectangle node[] {\centering\includegraphics[width=3.5mm]{python-logo.png}}
+        ([xshift=4mm]frame.north west);
+      \end{tcbclipinterior}
+    }
+  }
+
+\newcommand{\hackage}[1]{\hackagebox{\href{https://pypi.org/project/#1}{\color{hackage!25!black}{#1}}}}
+\newcommand{\docs}[1]{\hackagebox{\href{https://docs.python.org/3/library/#1}{\color{hackage!25!black}{#1}}}}
+
+\newcommand{\codeinlinenormal}[1]{\mintinline[fontsize=\footnotesize]{text}{#1}}
+\newcommand{\codeinline}[1]{\mintinline[fontsize=\footnotesize]{text}{#1}}
+\newcommand{\codeinlinesmall}[1]{\mintinline[fontsize=\scriptsize]{text}{#1}}
+
+
+\makeatletter
+\renewcommand\listoftables{%
+  \section*{\listtablename}%
+  \@mkboth{\MakeUppercase\listtablename}%
+      {\MakeUppercase\listtablename}%
+  \@starttoc{lot}%
+}
+\renewcommand\listoffigures{%
+  \section*{\listfigurename}%
+  \@mkboth{\MakeUppercase\listfigurename}%
+      {\MakeUppercase\listfigurename}%
+  \@starttoc{lof}%
+}
+\renewcommand\lstlistoflistings{%
+  \section*{List of \lstlistlistingname}%
+  \@mkboth{\MakeUppercase\lstlistlistingname}%
+      {\MakeUppercase\lstlistlistingname}%
+  \@starttoc{lol}%
+}
+\makeatother
+
+
+\newcommand{\imgscaling}{0.8}
+\newcommand{\customvertspacing}{0.5em}
+\newcommand{\vertnegspacing}{0ex}
+\newcommand{\customvertnegspacing}{0ex}
+\newcommand{\aftertitlespacing}{1em}
+
+\newcommand{\hd}{\rotatebox{60}}
+
+\title{
+  \vspace{\vertnegspacing}
+  \rule{\textwidth}{1.5pt}\\[\customvertspacing]
+  \huge Final Year Project Report\\[0.2em]
+  \Large AI for Modified Perudo and Game Hosting Service\\[\customvertspacing]
+  \rule{\textwidth}{1.5pt}\\[\aftertitlespacing]
+  \includegraphics[scale=\imgscaling]{NUIM-Crest.png}
+  \vspace{\customvertnegspacing}
+}
+
+\author{
+  Dheeraj Putta | 15329966\\[0.5em]
+  {\small A thesis submitted in partial fulfilment of the requirements for the \\ B.Sc. Computational Thinking\\[0.5em]}
+  {\small Advisor:\hspace{2mm}Dr. Phil Maguire}
+}
+
+\affil{Department of Computer Science\\Maynooth University, Ireland}
+
+\date{March 19, 2019}
+
+
+\usepackage[nameinlink]{cleveref}
+
+\begin{document}
+
+  \maketitle
+
+  \begin{abstract}
+    The objectives of this project were to create and implement strategies for artificial intelligence agents that could play Perudo with a modified rule set, develop code that is extensible to make it easy to add new strategies, and implement a method that allows the agents to play against each other.
+    The developed agents are compared against each other but with different parameters as to compare and contrast on the effects of each of the different values. After picking the best agent from each round, the best configuration for each agent is compared against all the different agents to try and discover the best agent. Next, I compare the best agent picked against myself playing against that agent. Finally, we discuss possible improvements and other strategies that could be implemented.
+  \end{abstract}
+
+  \setcounter{tocdepth}{1}
+
+  %% We'd like all lists to appear as sections in one big chapter.
+
+  \tableofcontents
+  \thispagestyle{empty}
+
+  \chapter*{Lists of Floats}
+
+  \listoftables
+
+  \listoffigures
+
+  \lstlistoflistings
+  \thispagestyle{empty}
+
+  \setcounter{page}{0}
+  \input{Chap1.tex}
+  \input{Chap2.tex}
+  \input{Chap3.tex}
+  \input{Chap4.tex}
+  \input{Chap5.tex}
+  \input{Chap6.tex}
+
+  \clearpage % or \cleardoublepage
+  \addcontentsline{toc}{chapter}{Bibliography}
+  \nocite{*}
+  \printbibliography
+
+  \input{Appendix.tex}
+
+\end{document}

@@ -1,0 +1,98 @@
+\chapter{Evaluation}
+
+The success of the AI's was measured by using the accuracy of the calls it made and the number of games it won as well. During the testing the order of the players was shuffled to ensure that the same players do not follow after each other and to prevent the same player going last in a round as whoever went last did better as they had the most information.
+
+\section{Selecting Parameters}
+All the AI's had to be tested against themselves but with different parameters to try and obtain the ideal values for \texttt{bluff} and \texttt{prob} for each AI. This test was done using 100 games.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccc}
+        &.1&.25&.4\\
+        \hline
+        .1&92.72\%, 7& 83.75\%, 5& 83.33\%, 0\\
+        .25&74.2\%, 23& 73.29\%, 18& 75.41\%, 4\\
+        .4&69.27\%, 18& 69.11\%, 13& 69.06\%, 12
+    \end{tabular}
+    \caption{\texttt{prob} v.s. \texttt{bluff} for \texttt{DumbAIPlayer}}
+    \label{table:res1}
+\end{table}
+
+As we can see \texttt{DumbAIPlayer} works the best with \texttt{prob} = .25 and \texttt{bluff} = .25.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccc}
+        & .1& .25& .4\\
+        \hline
+        .1&86.9\%, 10& 77.65\%, 11& 84.36\%, 2\\
+        .25&76.52\%, 24& 76.64\%, 18& 70.85\%, 4\\
+        .4&65.1\%, 12& 68.81\%, 16& 64.76\%, 3
+    \end{tabular}
+    \caption{\texttt{prob} v.s. \texttt{bluff} for \texttt{SLDumbAIPlayer}}
+    \label{table:res2}
+\end{table}
+
+As we can see \texttt{SLDumbAIPlayer} works the best with \texttt{prob} = .25 and \texttt{bluff} = .1. These are also the values that are used for \texttt{SLMiniMax}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccc}
+        &.1&.25&.4\\
+        \hline
+        .1&25.02\%, 12& 18.45\%, 5& 15.08\%, 2\\
+        .25&64.6\%, 16& 62.43\%, 14& 56.78\%, 10\\
+        .4&66.46\%, 22& 66.32\%, 9& 65.34\%, 10
+    \end{tabular}
+    \caption{\texttt{prob} v.s. \texttt{bluff} for \texttt{LDumbAIPlayer}}
+    \label{table:res3}
+\end{table}
+
+As we can see \texttt{LDumbAIPlayer} works the best with \texttt{prob} = .4 and \texttt{bluff} = .1. These are also the values that are used for \texttt{LMiniMax}.
+
+\section{Results and Analysis}
+
+
+\subsection{Results}
+
+500 games were simulated to obtain the results seen in the table below.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|l|l}
+        Type of AI&Call Accuracy & Games Won\\
+        \hline
+        \texttt{DumbAIPlayer} & 64.71\% & 65\\
+        \texttt{SLDumbAIPlayer} & 75.95\% & 200\\
+        \texttt{LDumbAIPlayer} & 68.91\% & 225\\
+        \texttt{SLMiniMax} & 40.4\% & 0\\
+        \texttt{LMiniMax} & 43.16\% & 0\\
+        \texttt{RandomAI} & 9\% & 0
+    \end{tabular}
+    \caption{Call Accuracy and Number of games won for each AI}
+    \label{table:res6}
+\end{table}
+
+After this, a human played against \texttt{LDumbAIPlayer} and the results are collected below.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|l|l|l}
+        Player & Call Accuracy & Games Won & Average Number of Dice\\
+        \hline
+        Human & 35.75\% & 9& 2.6\\
+        \texttt{LDumbAIPlayer} & 35\% & 11 & 3.2
+    \end{tabular}
+    \caption{Call Accuracy, Number of Games won and the Average number of dice left when won}
+    \label{table:res7}
+\end{table}
+\subsection{Analysis of Results}
+
+From \Cref{table:res6}, we can gather the following:
+\begin{enumerate}
+    \item All of the AI's are better than the baseline \texttt{RandomAI} bot.
+    \item \texttt{LDumbAIPlayer} is the best AI developed as it has won the most games, however it is not as good as \texttt{SLDumbPlayer} at correctly calling. Perhaps this could be fixed by further tweaking the value of \texttt{prob} for \texttt{LDumbAIPlayer}.
+    \item The fact that both \texttt{SLMiniMax} and \texttt{LMiniMax} win no games is very surprising. Perhaps the extra information received by using a Minimax tree is detrimental to the way the game is treated in this project.
+\end{enumerate}
+
+From \Cref{table:res7}, we can see that \texttt{LDumbAIPlayer} is about as good as the human playing against it.

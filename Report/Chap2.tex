@@ -1,0 +1,27 @@
+\chapter{Technical Background}
+
+\section{Topic Material}
+
+All of the papers mentioned in this section seem to focus on head-to-head (only 2 players) games of Perudo so they are not a direct comparison to the methods implemented in this project.
+
+
+One paper \autocite{Boros2014} uses methods similar to the ones in this project except that the rule set that they used includes the \textit{Aces} rule which is not the rules used for this project. In this paper, 4 different strategies are implemented:
+\begin{enumerate}
+    \item A basic strategy which bids based on the basis of analysing expected values. It also takes in an extra parameter, which sets an upper bound for raising a bid. If the expected value is higher than this bound then an \textit{Aces} is called.
+    \item An extended strategy -- based on the basic strategy -- which deduces back, from the initial bids, the opponent's dice. This method won more when it played against the basic strategy.
+    \item A foreseeing strategy which keeps track of all bets made and tries to use that to deduce the opponents dice.
+    \item A bluff strategy. This method was built from the idea that instead of winning one round it tries to win the whole game instead. This method not only considers the best theoretical build but other variations such as sending the minimum possible bet or by bluffing. The bluffing was not random and was based on the probabilities of the dice on the table, how ever no mention is made how they calculated the probabilities.
+\end{enumerate}
+The paper concludes that although the bluffing strategy is the best that they have implemented it still cannot be classified as a successful and "clever" player.\\
+
+This paper \autocite{Neller2012} attempts to use a modified version of Counter Factual Minimisation (CFR) called Fixed-Strategy Iteration Counterfactual Regret Minimisation (FSICFR) to approximate an  optimal strategy for Perudo. Essentially, CFR traverses extensive game subtrees, recursing forward with reach probabilities that each player will play to each node (i.e. information set) while maintaining history, and backpropagating values and utilities used to update parent node action regrets and thus future strategy. However, due to the large size of the information set in Perudo, the number of recursive visits to nodes grew exponentially with the depth of the tree.
+
+In FSICFR, the recursive CFR algorithm is split into two iterative passes, one forward and one backward, through a Directed Acyclic Graph (DAG). In the forward pass, visit counts and reach probabilities of each player are accumulated, yet all strategies remain fixed. (By contrast, in CFR, the strategy at a node is updated with each CFR visit.) After all the visits are counted and probabilities are accumulated, a backward pass computes utilities and updates regrets.
+
+The new method introduced provides a quicker training time for a standard 5 die head-to-head match of Perudo compared to CFR.
+
+\section{Technical Material}
+
+\subsection{Socket Server}
+
+This webpage \autocite{NathanJennings} details how to write a simple programme, using the \docs{socket} package, that accepts connections from a user, through a socket, and allows the main server to reply to these messages. It also shows examples of how to send a receive messages from multiple sources and handle them accordingly.

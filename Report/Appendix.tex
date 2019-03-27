@@ -1,0 +1,156 @@
+\begin{appendices}
+    \chapter{Appendix A}
+    \label{ch:apA}
+
+    \begin{myminted}{Generating Bets}{genbets}
+        def gen_bets(self, total_dice, bet_history, last_bet=None, num_bets=50):
+            if last_bet:
+                bets = set()
+                i = 0
+                probs = skewnorm.pdf(range(last_bet.num_of_dice, total_dice + 1), 5, .5, 4)
+                probs = probs / sum(probs)
+                dice_probs = [1/5 for _ in range(5)]
+                for die in bet_history.keys():
+                    dice_probs[i - 2] += bet_history[die] / 100
+                dice_probs = [x/sum(dice_probs) for x in dice_probs]
+                while len(bets) != num_bets and i < 150:
+                    die_value = int(choice(range(2, 7), 1, p=dice_probs)[0])
+                    die_amount = int(choice(range(last_bet.num_of_dice, total_dice + 1), 1, p=probs)[0])
+                    bet = Bet(die_value, die_amount)
+                    if bet.verify_bet(total_dice, last_bet, verbose=False):
+                        bets.add(bet)
+
+                    i += 1
+
+                return list(bets)
+
+            return [Bet(x, y) for x in range(2, 7) for y in range(1, 4)]
+    \end{myminted}
+
+    \chapter{Appendix B}
+
+    \begin{myminted}{\Cref*{eq:prob_a1}}{impa1}
+        def calc_prob(self, total_dice, dice_value, num_of_dice):
+            return sum([self.ncr(total_dice, i) * (2**(total_dice - i) / 3**total_dice)
+                        for i in range(num_of_dice, total_dice + 1)])
+    \end{myminted}
+
+    \begin{myminted}{\Cref*{eq:prob_b1}}{impb1}
+        def calc_prob(self, total_dice, dice_value, num_of_dice):
+            end_index = total_dice - len(self.dice_list)
+            our_dice = self.dice_list.count(dice_value) + self.dice_list.count(1)
+            start_index = num_of_dice - our_dice
+            return sum([self.ncr(end_index, i) * (2**(end_index - i)) / (3**end_index)
+                        for i in range(start_index, end_index + 1)])
+    \end{myminted}
+
+    \begin{myminted}{\Cref*{eq:fkl}}{fkl}
+        def calc_prob(self, total_dice, dice_value, num_of_dice, bet_history):
+            end_index = total_dice - len(self.dice_list)
+            our_dice = self.dice_list.count(dice_value) + self.dice_list.count(1)
+            start_index = num_of_dice - our_dice
+            prob = sum([self.ncr(end_index, i) * 2**(end_index - i) / 3**end_index
+                        for i in range(start_index, end_index + 1)])
+            prob += bet_history[dice_value] / 100
+            return prob
+    \end{myminted}
+
+    \begin{myminted}{Placing a bet}{getbest}
+        def get_best(self, total_dice, bet_history, prob, bluff, last_bet):
+            if not last_bet and len(self.dice_list) == 1:
+                return Bet(self.dice_list[0], 1)
+            elif len(self.dice_list) == 1:
+                return "call"
+            else:
+                bets = super().gen_bets(total_dice, last_bet)
+                probs = [self.calc_prob(total_dice, bet.dice_value, bet.num_of_dice, bet_history, last_bet) for bet in bets]
+                index, value = max(enumerate(probs), key=op.itemgetter(1))
+                # print(probs)
+                if value <= prob:
+                    return "call"
+                else:
+                    if randint(1, int(1/bluff)) == 1:
+                        return bets[randint(0, len(bets) - 1)]
+
+                    return bets[index]
+    \end{myminted}
+
+    \chapter{Appendix C}
+
+    \begin{myminted}{Minimax Implementation}{minimaximp}
+        def minimax(self, total_dice, last_bet, max_turn=True, max_depth=4):
+            if max_depth == 0:
+                return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice) * (1 if not max_turn else -1))
+
+            bets = super().gen_bets(total_dice, last_bet, 10)
+
+            best_value = float('-inf') if max_turn else float('inf')
+            bet_to_make = ""
+
+            for bet in bets:
+                bet_to_place, value = self.minimax(total_dice, bet, not max_turn, max_depth - 1)
+
+                if value > best_value and max_turn:
+                    best_value = value
+                    bet_to_make = bet
+
+                if value < best_value and not max_turn:
+                    best_value = value
+                    bet_to_make = bet
+            return (bet_to_make, best_value)
+    \end{myminted}
+
+    \begin{myminted}{Minimax with $\alpha$ - $\beta$ pruning}{abpruning}
+        def minimax(self, alpha, beta, total_dice, last_bet, max_turn=True, max_depth=4):
+            if max_depth == 0:
+                return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice) * (1 if not max_turn else -1))
+
+            bets = super().gen_bets(total_dice, last_bet, 10)
+
+            best_value = float('-inf') if max_turn else float('inf')
+            bet_to_make = ""
+
+            for bet in bets:
+                bet_to_place, value = self.minimax(alpha, beta, total_dice, bet, not max_turn, max_depth - 1)
+
+                if value > best_value and max_turn:
+                    best_value = value
+                    bet_to_make = bet
+                    alpha = max(alpha, best_value)
+                    if beta <= alpha:
+                        break
+
+                if value < best_value and not max_turn:
+                    best_value = value
+                    bet_to_make = bet
+                    beta = min(beta, best_value)
+                    if beta <= alpha:
+                        break
+            return (bet_to_make, best_value)
+    \end{myminted}
+
+    \begin{myminted}{Placing a Bet with MiniMax}{mmbet}
+        def get_best(self, total_dice, bet_history, prob, bluff, last_bet):
+            if not last_bet and len(self.dice_list) == 1:
+                return Bet(self.dice_list[0], 1)
+            elif len(self.dice_list) == 1:
+                return "call"
+            else:
+                bet, _ = self.minimax(float('-inf'), float('inf'), total_dice, bet_history, last_bet)
+                bet_prob = super().calc_prob(total_dice, bet.dice_value, bet.num_of_dice, bet_history)
+                # print("Final bet was: {} with probability {}".format(repr(bet), bet_prob))
+                if bet_prob < prob:
+                    return 'call'
+                elif randint(1, int(1/bluff)) == 1:
+                    bets = super().gen_bets(total_dice, bet_history, last_bet)
+                    probs = [self.calc_prob(total_dice, bet.dice_value, bet.num_of_dice, bet_history) for bet in bets]
+                    if not probs:
+                        return "call"
+
+                    sorted_bets = [(x, y) for x, y in sorted(list(zip(probs, bets)), key=lambda pair: -pair[0])]
+
+                    return sorted_bets[randint(0, int(len(sorted_bets) / 2))][1]
+
+                return bet
+    \end{myminted}
+\end{appendices}

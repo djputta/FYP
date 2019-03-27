@@ -1,0 +1,12 @@
+\chapter{Problem Analysis}
+
+
+The main goal at the start of the project was to develop and implement artificial intelligence that could play the game at a reasonable level and also to implement an extensible base to allow for the addition of new AI's. However, mid-way through the project, the goal became the development of a game hosting platform that allows humans to play against the AI as well as the AI to play against other AI.\\
+
+
+One of the problems associated with developing an AI for this game is because the project requires the AI to be flexible, i.e. it must work well for any number of players. This causes a lot of the algorithms that are already used for this topic to not perform well as they are all trained on data for a head-to-head game. Another problem with trying to train models for this game is the large search space. With 4 players playing, the number of different combinations of the number of dice each player has is 625 and with 5 players it is 3125. The search space grows exponentially with the number of players in the game.\\
+
+
+As well as the development of the AI, a system, as described above, had to be developed that allowed for games to be simulated between AI agents as well as gather statistics, such as win rate for each player, throughout the simulation. The system also has to allow people to use it from within the same network.
+
+
