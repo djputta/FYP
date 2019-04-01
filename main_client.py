@@ -14,7 +14,7 @@ def main(type, prob=.1, bluff=.1):
                 p.check_game_over()
                 p.check_out()
                 if p.out:
-                    # print("You are out")
+                    print("You are out")
                     pass
                 elif not p.game_over:
                     p.play_round(prob, bluff)

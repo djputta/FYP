@@ -38,9 +38,7 @@ class HumanPlayer(Player):
                     print("Bet is misformatted. Should be n d (n dice of value d)")
                     continue
                 current_bet = Bet(current_bet[1], current_bet[0])
-                # print(current_bet)
                 if current_bet.verify_bet(total_num_of_dice, previous_bet=last_bet):
-                    # print(repr(current_bet))
                     return current_bet
 
 
@@ -108,9 +106,7 @@ class DumbAIPlayer(Player):
                 return sorted_bets[0][1]
 
     def place_bet(self, total_number_of_dice, bet_history, prob=.1, bluff=.1, last_bet=None):
-        # print("Your dice are: " + ", ".join(str(die) for die in self.dice_list))
         bet = self.get_best(total_number_of_dice, prob, bluff, bet_history, last_bet)
-        # print(repr(bet))
         return bet
 
 
@@ -138,7 +134,6 @@ class SLDumbAIPlayer(DumbAIPlayer):
             if not probs:
                 return "call"
             sorted_bets = [(x, y) for x, y in sorted(list(zip(probs, bets)), key=lambda pair: -pair[0])]
-            # print(sorted_bets)
             if sorted_bets[0][0] < prob:
                 return "call"
             else:
@@ -148,9 +143,7 @@ class SLDumbAIPlayer(DumbAIPlayer):
                 return sorted_bets[0][1]
 
     def place_bet(self, total_number_of_dice, bet_history, prob=.1, bluff=.1, last_bet=None):
-        # print("Your dice are: " + ", ".join(str(die) for die in self.dice_list))
         bet = self.get_best(total_number_of_dice, prob, bluff, bet_history, last_bet)
-        # print(repr(bet))
         return bet
 
 
@@ -182,7 +175,6 @@ class LDumbAIPlayer(SLDumbAIPlayer):
                 return "call"
 
             sorted_bets = [(x, y) for x, y in sorted(list(zip(probs, bets)), key=lambda pair: -pair[0])]
-            # print(probs)
             if sorted_bets[0][0] < prob:
                 return "call"
             else:
@@ -192,21 +184,17 @@ class LDumbAIPlayer(SLDumbAIPlayer):
                 return sorted_bets[0][1]
 
     def place_bet(self, total_number_of_dice, bet_history, prob=.1, bluff=.1, last_bet=None):
-        # print("Your dice are: " + ", ".join(str(die) for die in self.dice_list))
         bet = self.get_best(total_number_of_dice, bet_history, prob, bluff, last_bet)
-        # print(repr(bet))
         return bet
 
 
 class LMiniMax(LDumbAIPlayer):
 
     def minimax(self, alpha, beta, total_dice, bet_history, last_bet, max_turn=True, max_depth=5):
-        # print(max_depth)
 
         bets = super().gen_bets(total_dice, bet_history, last_bet, 3)
 
         if max_depth == 0 or not bets:
-            # print("Finished on {}'s turn".format("Max" if max_turn else "Min"))
             return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice, bet_history))
 
         # print(bets)
@@ -216,8 +204,6 @@ class LMiniMax(LDumbAIPlayer):
 
         for bet in bets:
             bet_to_place, value = self.minimax(alpha, beta, total_dice, bet_history, bet, not max_turn, max_depth - 1)
-            # print("It is {}'s turn".format("Max" if max_turn else "Min"))
-            # print("{} has probability {}".format(repr(bet_to_place), value))
 
             if value > best_value and max_turn:
                 best_value = value
@@ -233,8 +219,6 @@ class LMiniMax(LDumbAIPlayer):
                 if beta <= alpha:
                     break
 
-        # print("{}: On {}'s turn the best bet was {} with a prob of {}".format(
-        #     max_depth, "Max" if max_turn else "Min", repr(bet_to_make), best_value))
         return (bet_to_make, best_value)
 
     def get_best(self, total_dice, bet_history, prob, bluff, last_bet):
@@ -245,7 +229,7 @@ class LMiniMax(LDumbAIPlayer):
         else:
             bet, _ = self.minimax(float('-inf'), float('inf'), total_dice, bet_history, last_bet)
             bet_prob = super().calc_prob(total_dice, bet.dice_value, bet.num_of_dice, bet_history)
-            # print("Final bet was: {} with probability {}".format(repr(bet), bet_prob))
+
             if bet_prob < prob:
                 return 'call'
             elif randint(1, int(1/bluff)) == 1:
@@ -261,7 +245,6 @@ class LMiniMax(LDumbAIPlayer):
             return bet
 
     def place_bet(self, total_number_of_dice, bet_history, prob=0.1, bluff=0.1, last_bet=None):
-        # print("Your dice are {}:".format(self.dice_list))
         bet = self.get_best(total_number_of_dice, bet_history, prob, bluff, last_bet)
         return bet
 
@@ -269,23 +252,17 @@ class LMiniMax(LDumbAIPlayer):
 class SLMiniMax(SLDumbAIPlayer):
 
     def minimax(self, alpha, beta, total_dice, bet_history, last_bet, max_turn=True, max_depth=5):
-        # print(max_depth)
-
         bets = super().gen_bets(total_dice, bet_history, last_bet, 3)
 
         if max_depth == 0 or not bets:
-            # print("Finished on {}'s turn".format("Max" if max_turn else "Min"))
             return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice))
 
-        # print(bets)
 
         best_value = float('-inf') if max_turn else float('inf')
         bet_to_make = ""
 
         for bet in bets:
             bet_to_place, value = self.minimax(alpha, beta, total_dice, bet_history, bet, not max_turn, max_depth - 1)
-            # print("It is {}'s turn".format("Max" if max_turn else "Min"))
-            # print("{} has probability {}".format(repr(bet_to_place), value))
 
             if value > best_value and max_turn:
                 best_value = value
@@ -301,8 +278,6 @@ class SLMiniMax(SLDumbAIPlayer):
                 if beta <= alpha:
                     break
 
-        # print("{}: On {}'s turn the best bet was {} with a prob of {}".format(
-        #     max_depth, "Max" if max_turn else "Min", repr(bet_to_make), best_value))
         return (bet_to_make, best_value)
 
     def get_best(self, total_dice, bet_history, prob, bluff, last_bet):
@@ -313,7 +288,7 @@ class SLMiniMax(SLDumbAIPlayer):
         else:
             bet, _ = self.minimax(float('-inf'), float('inf'), total_dice, bet_history, last_bet)
             bet_prob = super().calc_prob(total_dice, bet.dice_value, bet.num_of_dice)
-            # print("Final bet was: {} with probability {}".format(repr(bet), bet_prob))
+
             if bet_prob < prob:
                 return 'call'
             elif randint(1, int(1/bluff)) == 1:
@@ -329,6 +304,5 @@ class SLMiniMax(SLDumbAIPlayer):
             return bet
 
     def place_bet(self, total_number_of_dice, bet_history, prob=0.1, bluff=0.1, last_bet=None):
-        # print("Your dice are {}:".format(self.dice_list))
         bet = self.get_best(total_number_of_dice, bet_history, prob, bluff, last_bet)
         return bet

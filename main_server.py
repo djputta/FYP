@@ -2,6 +2,14 @@ from PerudoServer import PerudoServer
 import argparse
 
 
+def print_results_table(data, player_list):
+    col_names = ["Call Accuracy", "Avg Num Dice", "Games Won"]
+    str_l = max(len(t) for t in col_names)
+    print(" ".join(['{:>{length}s}'.format(t, length=str_l) for t in [" "] + col_names]))
+    for t, row in zip(player_list, data):
+        print(" ".join(['{:>{length}s}'.format(str(x), length=str_l) for x in [t] + row]))
+
+
 def main(players, num_games=10):
     p = PerudoServer(num_players=players, num_games=num_games)
     p.add_players()
@@ -55,8 +63,7 @@ def main(players, num_games=10):
             else:
                 stats[i] = [winner[i][0] / sum(winner[i][:2]), winner[i][2] / winner[i][3], winner[i][3]]
 
-    print(winner)
-    print(stats)
+    print_results_table(list(stats.values()), ["Player {}".format(i+1) for i in range(len(p.player_list))])
 
     p.sock.close()
 
