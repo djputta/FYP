@@ -2,8 +2,8 @@ from PlayerClient import PlayerClient
 import argparse
 
 
-def main(type, prob=.1, bluff=.1):
-    p = PlayerClient(type=type)
+def main(type, prob, bluff, host, port):
+    p = PlayerClient(type=type, host=host, port=port)
     num_games = p.num_games()
 
     for i in range(num_games):
@@ -45,14 +45,9 @@ help_string = """
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=int, help=help_string)
-    parser.add_argument("-p", "--probability", help="Probability cutoff", type=float)
-    parser.add_argument("-b", "--bluff", help="Bluff Probability", type=float)
+    parser.add_argument("-c", "--cutoff", help="Probability cutoff", type=float, default=.1)
+    parser.add_argument("-b", "--bluff", help="Bluff Probability", type=float, default=.1)
+    parser.add_argument("-a", "--address", help="IP Address of host server", type=str, default='127.0.0.1')
+    parser.add_argument("-p", "--port", help="Port number of host server", type=int, default=65445)
     args = parser.parse_args()
-    if args.probability and args.bluff:
-        main(args.type, args.probability, args.bluff)
-    elif args.probability:
-        main(args.type, prob=args.probability)
-    elif args.bluff:
-        main(args.type, bluff=args.bluff)
-    else:
-        main(args.type)
+    main(args.type, args.cutoff, args.bluff, args.address, args.port)

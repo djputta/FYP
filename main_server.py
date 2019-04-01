@@ -10,8 +10,8 @@ def print_results_table(data, player_list):
         print(" ".join(['{:>{length}s}'.format(str(x), length=str_l) for x in [t] + row]))
 
 
-def main(players, num_games=10):
-    p = PerudoServer(num_players=players, num_games=num_games)
+def main(players, num_games, address, port):
+    p = PerudoServer(num_players=players, num_games=num_games, host=address, port=port)
     p.add_players()
     p.send_num_games()
     winner = {k: [0, 0, 0, 0] for k in range(len(p.player_list))}
@@ -71,9 +71,8 @@ def main(players, num_games=10):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("players", help="Number of players in the game", type=int)
-    parser.add_argument("-n", "--number", help="Number of games to play", type=int)
+    parser.add_argument("-n", "--number", help="Number of games to play", type=int, default=1)
+    parser.add_argument("-a", "--address", help="IP Address", type=str, default='127.0.0.1')
+    parser.add_argument("-p", "--port", help="Port number", type=int, default=65445)
     args = parser.parse_args()
-    if args.number:
-        main(args.players, args.number)
-    else:
-        main(args.players)
+    main(args.players, args.number, args.address, args.port)
