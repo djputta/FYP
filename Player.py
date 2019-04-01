@@ -257,7 +257,6 @@ class SLMiniMax(SLDumbAIPlayer):
         if max_depth == 0 or not bets:
             return (last_bet, super().calc_prob(total_dice, last_bet.dice_value, last_bet.num_of_dice))
 
-
         best_value = float('-inf') if max_turn else float('inf')
         bet_to_make = ""
 

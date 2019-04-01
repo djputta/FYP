@@ -7,8 +7,8 @@ from random import shuffle
 
 
 class PerudoServer():
-    def __init__(self, dice_per_player=5, num_players=2, num_games=1, port=65445):
-        self.HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+    def __init__(self, dice_per_player=5, num_players=2, num_games=1, host='127.0.0.1', port=65445):
+        self.HOST = host  # Standard loopback interface address (localhost)
         self.PORT = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.HOST, self.PORT))

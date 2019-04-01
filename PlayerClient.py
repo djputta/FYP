@@ -9,8 +9,8 @@ class PlayerClient():
     players = {0: HumanPlayer, 1: DumbAIPlayer, 2: SLDumbAIPlayer,
                3: LDumbAIPlayer, 4: LMiniMax, 5: SLMiniMax, 6: RandomAI}
 
-    def __init__(self, type=0, port=65445):
-        self.HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+    def __init__(self, type=0, host='127.0.0.1', port=65445):
+        self.HOST = host  # Standard loopback interface address (localhost)
         self.PORT = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.HOST, self.PORT))
@@ -61,7 +61,7 @@ class PlayerClient():
         '''
         last_bet = None if len(self.all_bets) == 0 else self.all_bets[-1]
         bet = self.bot.place_bet(self.num_dice, self.bet_history, prob, bluff, last_bet)
-        if isinstance(bet, str): # If you have called
+        if isinstance(bet, str):  # If you have called
             self.sock.sendall(pickle.dumps(str(bet)))
             return True
         self.all_bets.append(bet)
